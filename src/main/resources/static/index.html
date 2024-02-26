@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .origin{
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border: 1px solid grey;
+            top:50%;
+            left:50%;
+            transform: translate(-50%,-50%);
+        }
+    </style>
+</head>
+<body>
+<div class="origin">
+    <div class="origin_item">이 영역을 비동기로 렌더링해볼게요.</div>
+</div>
+<script>
+    (async function (){
+        const domParser = new DOMParser();
+        let response = await fetch('/data');
+        let text = await response.text();
+        let asyncDocument = domParser.parseFromString(text,'text/html');
+        let $originItem = document.querySelector('.origin_item');
+        let $asyncItem = asyncDocument.querySelector('.async_item');
+        let asyncStyle = asyncDocument.head.querySelector('style');
+        $originItem.replaceWith($asyncItem);
+        document.head.append(asyncStyle);
+    })()
+
+    // 1번째 코드
+    {
+        let result;
+        fetch('/text')
+            .then(res=>res.text())
+            .then(res=>{result = res})
+        setTimeout(()=>{console.log(result)},500)
+    }
+
+    // 2번째 코드
+    {
+        let result;
+        fetch('/text')
+            .then(res=>res.text())
+            .then(res=>{
+                result = res;
+                console.log(result);
+            })
+    }
+
+    // 3번째 코드
+    {
+        let result;
+        async function printResult(){
+            let response = await fetch('/text');
+            let text = await response.text();
+            result = text;
+            console.log(result);
+        }
+        printResult();
+    }
+</script>
+</body>
+</html>
